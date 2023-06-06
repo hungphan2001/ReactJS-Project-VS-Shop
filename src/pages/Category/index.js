@@ -1,63 +1,37 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { getProductsCategory,getCategory } from '../../services/Api';
+import { useParams } from 'react-router-dom';
+import ProductItem from '../../shared/components/product-item';
+const Category = () => {
+  const {id} = useParams();
+  const [products,setProducts] = useState([]);
+  const [totalproducts,setToTalProducts] = useState(0);
+  const [categories,setCategores] = useState(null);
+  useEffect(()=>{
+   getProductsCategory(id,{}).then(({data})=>{
+    setProducts(data.data.docs);
+    setToTalProducts(data.data.docs.length);
+   });
+   getCategory(id,{}).then(({data})=>{
+    setCategores(data.data);
+   })
 
-const index = () => {
+  },[id])
   return (
     <>
 
       {/*	List Product	*/}
       <div className="products">
-        <h3>iPhone (hiện có 186 sản phẩm)</h3>
-        <div className="product-list card-deck">
-          <div className="product-item card text-center">
-            <a href="#"><img src="images/product-1.png" /></a>
-            <h4><a href="#">iPhone Xs Max 2 Sim - 256GB</a></h4>
-            <p>Giá Bán: <span>32.990.000đ</span></p>
-          </div>
-          <div className="product-item card text-center">
-            <a href="#"><img src="images/product-2.png" /></a>
-            <h4><a href="#">iPhone Xs Max 2 Sim - 256GB</a></h4>
-            <p>Giá Bán: <span>32.990.000đ</span></p>
-          </div>
-          <div className="product-item card text-center">
-            <a href="#"><img src="images/product-3.png" /></a>
-            <h4><a href="#">iPhone Xs Max 2 Sim - 256GB</a></h4>
-            <p>Giá Bán: <span>32.990.000đ</span></p>
-          </div>
-        </div>
-        <div className="product-list card-deck">
-          <div className="product-item card text-center">
-            <a href="#"><img src="images/product-4.png" /></a>
-            <h4><a href="#">iPhone Xs Max 2 Sim - 256GB</a></h4>
-            <p>Giá Bán: <span>32.990.000đ</span></p>
-          </div>
-          <div className="product-item card text-center">
-            <a href="#"><img src="images/product-5.png" /></a>
-            <h4><a href="#">iPhone Xs Max 2 Sim - 256GB</a></h4>
-            <p>Giá Bán: <span>32.990.000đ</span></p>
-          </div>
-          <div className="product-item card text-center">
-            <a href="#"><img src="images/product-6.png" /></a>
-            <h4><a href="#">iPhone Xs Max 2 Sim - 256GB</a></h4>
-            <p>Giá Bán: <span>32.990.000đ</span></p>
-          </div>
-        </div>
-        <div className="product-list card-deck">
-          <div className="product-item card text-center">
-            <a href="#"><img src="images/product-7.png" /></a>
-            <h4><a href="#">iPhone Xs Max 2 Sim - 256GB</a></h4>
-            <p>Giá Bán: <span>32.990.000đ</span></p>
-          </div>
-          <div className="product-item card text-center">
-            <a href="#"><img src="images/product-8.png" /></a>
-            <h4><a href="#">iPhone Xs Max 2 Sim - 256GB</a></h4>
-            <p>Giá Bán: <span>32.990.000đ</span></p>
-          </div>
-          <div className="product-item card text-center">
-            <a href="#"><img src="images/product-9.png" /></a>
-            <h4><a href="#">iPhone Xs Max 2 Sim - 256GB</a></h4>
-            <p>Giá Bán: <span>32.990.000đ</span></p>
-          </div>
-        </div>
+        <h3>{categories?.name} (Hiện có {totalproducts} sản phẩm)</h3>
+<div  className="product-list card-deck">
+	{
+		products?.map((product)=>{
+			return <ProductItem key={product._id} item={product}/>
+		})
+	}
+</div>
+
+
       </div>
       {/*	End List Product	*/}
 
@@ -77,4 +51,4 @@ const index = () => {
   )
 }
 
-export default index
+export default Category
