@@ -1,7 +1,6 @@
 import './App.css';
 import React, { useEffect, useState }  from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-
 //Import Api
 import { getCategories } from "./services/Api";
 //Import Pages
@@ -19,10 +18,11 @@ import Footer from '../src/shared/components/Layout/Footer';
 import Slidebar from '../src/shared/components/Layout/Slidebar';
 import Slider from '../src/shared/components/Layout/Slider';
 import Menu from '../src/shared/components/Layout/Menu';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { store } from './app/store';
 
 function App() {
   const [categories,setCategores]= useState([]);
-
 useEffect(()=>{
   getCategories({}).then(({data})=>setCategores(data.data.docs));
 },[])

@@ -1,5 +1,5 @@
-import { useParams } from "react-router-dom";
-import { getImageProduct } from "../../shared/ultils";
+import { useNavigate, useParams } from "react-router-dom";
+import { getImageProduct,formatPrice } from "../../shared/ultils";
 import React, { useEffect, useState } from "react";
 import {
   getProduct,
@@ -7,17 +7,20 @@ import {
   createCommentProduct,
 } from "../../services/Api";
 import moment from "moment";
+import { useDispatch, useSelector } from "react-redux";
+import { ADD_TO_CART } from "../../shared/constants/action-type";
 const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState({});
   const [productcomments, setProductComments] = useState([]);
   const [inputComment, setInputComment] = useState({});
-  const getComments = (id)=>{
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const getComments = (id) => {
     getProductComments(id).then(({ data }) => {
       setProductComments(data.data.docs);
     });
-  } 
-  
+  };
   useEffect(() => {
     getProduct(id, {}).then(({ data }) => {
       setProduct(data.data);
@@ -30,15 +33,33 @@ const ProductDetails = () => {
     setInputComment({ ...inputComment, [name]: value });
   };
 
+  const addToCart=(type)=>{
+    if(product){
+      const {_id,name,price,image} = product;
+      dispatch({
+        type:ADD_TO_CART,
+        payload:{
+          _id,
+          name,
+          price,
+          image,
+          qty:1,
+        }
+      })
+    }
+    if(type==="buy-now"){
+      navigate("/cart");
+    }
+  }
+
   const onClickSubmit = (e) => {
     e.preventDefault();
-    createCommentProduct(id,inputComment).then(({data})=>{
-      if(data.status==="success"){
-        setInputComment(null)
+    createCommentProduct(id, inputComment).then(({ data }) => {
+      if (data.status === "success") {
+        setInputComment(null);
       }
       getComments(id);
-    })
-
+    });
   };
   return (
     <div>
@@ -66,14 +87,22 @@ const ProductDetails = () => {
                   <span>Khuyến Mại:</span> {product?.promotion}
                 </li>
                 <li id="price">Giá Bán (chưa bao gồm VAT)</li>
-                <li id="price-number">{product.price}đ</li>
-                <li id="status">
-                  {product?.is_stock ? "Còn hàng" : "Hết hàng"}
-                </li>
+                <li id="price-number">{formatPrice.format(product.price)}đ</li>
+                <li id="status" style={product?.is_stock ? {} : { color: "red" }}>
+                {product?.is_stock ? "Còn hàng" : "Hết hàng"}
+              </li>
               </ul>
-              <div id="add-cart">
-                <a href="#">Mua ngay</a>
+              {
+                product?.is_stock &&(
+                  <div id="add-cart">
+                <button 
+                onClick={() => addToCart("buy-now")}
+                className="btn btn-warning mr-2">Mua ngay</button>
+
+                <button className="btn btn-info">Thêm vào giỏ hàng</button>
               </div>
+                )
+              }
             </div>
           </div>
           <div id="product-body" className="row">
@@ -95,7 +124,7 @@ const ProductDetails = () => {
                     type="text"
                     className="form-control"
                     onChange={onChangeInput}
-                    value={inputComment?.name ||""}
+                    value={inputComment?.name || ""}
                   />
                 </div>
                 <div className="form-group">
@@ -107,7 +136,7 @@ const ProductDetails = () => {
                     className="form-control"
                     id="pwd"
                     onChange={onChangeInput}
-                    value={inputComment?.email ||""}
+                    value={inputComment?.email || ""}
                   />
                 </div>
                 <div className="form-group">
@@ -118,7 +147,7 @@ const ProductDetails = () => {
                     rows={8}
                     className="form-control"
                     onChange={onChangeInput}
-                    value={inputComment?.content ||""}
+                    value={inputComment?.content || ""}
                   />
                 </div>
                 <button

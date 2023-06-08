@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
 const Header = () => {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState("");
@@ -12,6 +12,11 @@ const Header = () => {
     e.preventDefault();
     return navigate(`/search?keyword=${keyword}`);
   };
+
+  //read Cart: cartReducer,
+  const totalCart = useSelector(({Cart})=>{
+    return Cart?.items.reduce((total,item)=>total+item.qty,0)
+  })
 
   return (
     <>
@@ -48,7 +53,7 @@ const Header = () => {
               <a className="mt-4 mr-2" href="#">
                 giỏ hàng
               </a>
-              <span className="mt-3">8</span>
+              <span className="mt-3">{totalCart}</span>
             </div>
           </div>
         </div>
