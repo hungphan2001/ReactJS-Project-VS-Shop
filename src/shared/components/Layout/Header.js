@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 const Header = () => {
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState("");
@@ -50,9 +50,9 @@ const Header = () => {
               </form>
             </div>
             <div id="cart" className="col-lg-3 col-md-3 col-sm-12">
-              <a className="mt-4 mr-2" href="#">
+              <Link className="mt-4 mr-2" to="/cart">
                 giỏ hàng
-              </a>
+              </Link>
               <span className="mt-3">{totalCart}</span>
             </div>
           </div>
