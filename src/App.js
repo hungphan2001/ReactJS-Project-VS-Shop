@@ -18,8 +18,6 @@ import Footer from '../src/shared/components/Layout/Footer';
 import Slidebar from '../src/shared/components/Layout/Slidebar';
 import Slider from '../src/shared/components/Layout/Slider';
 import Menu from '../src/shared/components/Layout/Menu';
-import { Provider, useDispatch, useSelector } from 'react-redux';
-import { store } from './app/store';
 
 function App() {
   const [categories,setCategores]= useState([]);

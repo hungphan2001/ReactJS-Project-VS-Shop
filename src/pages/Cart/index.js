@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { order } from "../../services/Api";
 import { getImageProduct, formatPrice } from "../../shared/ultils";
 import {
-  DELETE_ITEM_CART,
-  UPDATE_CART,
-  REMOVE_CART,
-} from "../../shared/constants/action-type";
+  updateCart,
+  removeCart,
+  deleteCart
+} from '../../redux/cart/cartSlice'
 import { useNavigate } from "react-router";
 const Cart = () => {
   const dispatch = useDispatch();
@@ -21,37 +21,17 @@ const Cart = () => {
     });
   };
 
-  const carts = useSelector(({ Cart }) => {
-    return Cart.items;
-  });
+  const cart = useSelector(({ cart }) => cart?.items);
 
   const onChangeInput = (e, id) => {
     const value = parseInt(e.target.value);
+    console.log(value)
     if (value <= 0) {
       // eslint-disable-next-line no-restricted-globals
       const isConfirm = confirm("Xóa sản phẩm trong giỏ hàng");
-      return !isConfirm
-        ? dispatch({
-            type: UPDATE_CART,
-            payload: {
-              id,
-              qty: 1,
-            },
-          })
-        : dispatch({
-            type: DELETE_ITEM_CART,
-            payload: {
-              id,
-            },
-          });
+      return isConfirm ? dispatch(deleteCart(id)) :(value=1);
     }
-    dispatch({
-      type: UPDATE_CART,
-      payload: {
-        id,
-        qty: value,
-      },
-    });
+    dispatch(updateCart({ _id: id, qty: value }));
   };
 
   const onDeleteItem = (e, id) => {
@@ -59,34 +39,23 @@ const Cart = () => {
     // eslint-disable-next-line no-restricted-globals
     const isConfirm = confirm("Xóa sản phẩm trong giỏ hàng");
     return isConfirm
-      ? dispatch({
-          type: DELETE_ITEM_CART,
-          payload: {
-            id,
-          },
-        })
+      ? dispatch(deleteCart(id))
       : false;
   };
 
   function onClickOrder(e,id) {
     e.preventDefault();
 
-    const items = carts.map((item) => ({ prd_id: item._id, qty: item.qty }));
+    const items = cart?.map((item) => ({ prd_id: item._id, qty: item.qty }));
     order({
       items,
       ...inputs,
     }).then(({ data }) => {
       if (data.status === "success") {
-        dispatch({
-          type: REMOVE_CART,
-          payload: {
-            id,
-          },
-        })
+        dispatch(removeCart())
         navigate("/success");
       }
     });
-    console.log(items);
   }
 
   return (
@@ -104,7 +73,7 @@ const Cart = () => {
             <div className="cart-nav-item col-lg-3 col-md-3 col-sm-12">Giá</div>
           </div>
           <form method="post">
-            {carts?.map((item, index) => {
+            {cart?.map((item, index) => {
               return (
                 <div className="cart-item row">
                   <div className="cart-thumb col-lg-7 col-md-7 col-sm-12">
@@ -117,6 +86,7 @@ const Cart = () => {
                       id="quantity"
                       className="form-control form-blue quantity"
                       value={item?.qty}
+                      min={0}
                       onChange={(e) => onChangeInput(e, item?._id)}
                     />
                   </div>
@@ -150,7 +120,7 @@ const Cart = () => {
               <div className="cart-price col-lg-3 col-md-3 col-sm-12">
                 <b>
                   {formatPrice.format(
-                    carts.reduce(
+                    cart.reduce(
                       (total, item) => total + item.price * item.qty,
                       0
                     )

@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { getImageProduct,formatPrice } from "../../shared/ultils";
+import { addToCart } from "../../redux/cart/cartSlice";
 import React, { useEffect, useState } from "react";
 import {
   getProduct,
@@ -8,7 +9,7 @@ import {
 } from "../../services/Api";
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
-import { ADD_TO_CART } from "../../shared/constants/action-type";
+
 const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState({});
@@ -33,19 +34,10 @@ const ProductDetails = () => {
     setInputComment({ ...inputComment, [name]: value });
   };
 
-  const addToCart=(type)=>{
+  const handleAddToCart=(type)=>{
     if(product){
       const {_id,name,price,image} = product;
-      dispatch({
-        type:ADD_TO_CART,
-        payload:{
-          _id,
-          name,
-          price,
-          image,
-          qty:1,
-        }
-      })
+      dispatch(addToCart({ _id, name, price, image, qty: 1 }));
     }
     if(type==="buy-now"){
       navigate("/cart");
@@ -96,7 +88,7 @@ const ProductDetails = () => {
                 product?.is_stock &&(
                   <div id="add-cart">
                 <button 
-                onClick={() => addToCart("buy-now")}
+                onClick={() => handleAddToCart("buy-now")}
                 className="btn btn-warning mr-2">Mua ngay</button>
 
                 <button className="btn btn-info">Thêm vào giỏ hàng</button>

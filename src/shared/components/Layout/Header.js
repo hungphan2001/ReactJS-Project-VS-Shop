@@ -14,8 +14,8 @@ const Header = () => {
   };
 
   //read Cart: cartReducer,
-  const totalCart = useSelector(({Cart})=>{
-    return Cart?.items.reduce((total,item)=>total+item.qty,0)
+  const totalCart = useSelector(({cart})=>{
+    return cart?.items.reduce((total,item)=>total+item.qty,0)
   })
 
   return (
