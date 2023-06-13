@@ -27,3 +27,7 @@ export const getCategory = (id,config)=>{
 export const createCommentProduct =(id,data,config)=>{
     return Http.post(`products/${id}/comments`,data,config);
 };
+
+export const order = (data,config)=>{
+    return Http.post(`/order`,data,config);
+}

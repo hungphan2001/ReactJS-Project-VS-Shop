@@ -1,12 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { order } from "../../services/Api";
 import { getImageProduct, formatPrice } from "../../shared/ultils";
 import {
   DELETE_ITEM_CART,
   UPDATE_CART,
+  REMOVE_CART,
 } from "../../shared/constants/action-type";
+import { useNavigate } from "react-router";
 const Cart = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [inputs, setInputs] = useState({});
+
+  const onChangeOrderInput = (e) => {
+    const { value, name } = e.target;
+    setInputs({
+      ...inputs,
+      [name]: value,
+    });
+  };
+
   const carts = useSelector(({ Cart }) => {
     return Cart.items;
   });
@@ -53,6 +67,27 @@ const Cart = () => {
         })
       : false;
   };
+
+  function onClickOrder(e,id) {
+    e.preventDefault();
+
+    const items = carts.map((item) => ({ prd_id: item._id, qty: item.qty }));
+    order({
+      items,
+      ...inputs,
+    }).then(({ data }) => {
+      if (data.status === "success") {
+        dispatch({
+          type: REMOVE_CART,
+          payload: {
+            id,
+          },
+        })
+        navigate("/success");
+      }
+    });
+    console.log(items);
+  }
 
   return (
     <>
@@ -112,16 +147,16 @@ const Cart = () => {
               <div className="cart-total col-lg-2 col-md-2 col-sm-12">
                 <b>Tổng cộng:</b>
               </div>
-                  <div className="cart-price col-lg-3 col-md-3 col-sm-12">
-                    <b>
-                      {formatPrice.format(
-                        carts.reduce(
-                          (total, item) => total + item.price * item.qty,
-                          0
-                        )
-                      )}
-                    </b>
-                  </div>
+              <div className="cart-price col-lg-3 col-md-3 col-sm-12">
+                <b>
+                  {formatPrice.format(
+                    carts.reduce(
+                      (total, item) => total + item.price * item.qty,
+                      0
+                    )
+                  )}
+                </b>
+              </div>
             </div>
           </form>
         </div>
@@ -136,6 +171,8 @@ const Cart = () => {
                   type="text"
                   name="name"
                   className="form-control"
+                  onChange={onChangeOrderInput}
+                  value={inputs?.name || ""}
                   required
                 />
               </div>
@@ -145,6 +182,8 @@ const Cart = () => {
                   type="text"
                   name="phone"
                   className="form-control"
+                  onChange={onChangeOrderInput}
+                  value={inputs?.phone || ""}
                   required
                 />
               </div>
@@ -152,8 +191,10 @@ const Cart = () => {
                 <input
                   placeholder="Email (bắt buộc)"
                   type="text"
-                  name="mail"
+                  name="email"
                   className="form-control"
+                  onChange={onChangeOrderInput}
+                  value={inputs?.email || ""}
                   required
                 />
               </div>
@@ -161,8 +202,10 @@ const Cart = () => {
                 <input
                   placeholder="Địa chỉ nhà riêng hoặc cơ quan (bắt buộc)"
                   type="text"
-                  name="add"
+                  name="address"
                   className="form-control"
+                  onChange={onChangeOrderInput}
+                  value={inputs?.address || ""}
                   required
                 />
               </div>
@@ -170,7 +213,7 @@ const Cart = () => {
           </form>
           <div className="row">
             <div className="by-now col-lg-6 col-md-6 col-sm-12">
-              <a href="#">
+              <a href="#" onClick={onClickOrder}>
                 <b>Mua ngay</b>
                 <span>Giao hàng tận nơi siêu tốc</span>
               </a>
