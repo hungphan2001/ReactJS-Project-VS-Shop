@@ -19,7 +19,7 @@ export const cartSlice = createSlice({
         }
         return item;
       });
-      !isProductExists && items.push(action.payload);
+      !isProductExists && items.push(...action.payload,{isCheck:false});
     },
     updateCart: (state, action) => {
       const items = state.items;
@@ -36,10 +36,17 @@ export const cartSlice = createSlice({
     removeCart: (state, action) => {
       state.items =[]
     },
+    selectItemCart:(state,action)=>{
+      state.items.map((item)=>{
+        if(item._id==action.payload){
+          item.isCheck=!item.isCheck;
+        }
+      })
+    }
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { addToCart, updateCart,removeCart,deleteCart } = cartSlice.actions
+export const { addToCart, updateCart,removeCart,deleteCart,selectItemCart } = cartSlice.actions
 
 export default cartSlice.reducer

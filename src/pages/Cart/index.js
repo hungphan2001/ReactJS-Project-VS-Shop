@@ -5,8 +5,9 @@ import { getImageProduct, formatPrice } from "../../shared/ultils";
 import {
   updateCart,
   removeCart,
-  deleteCart
-} from '../../redux/cart/cartSlice'
+  deleteCart,
+  selectItemCart,
+} from "../../redux/cart/cartSlice";
 import { useNavigate } from "react-router";
 const Cart = () => {
   const dispatch = useDispatch();
@@ -25,11 +26,11 @@ const Cart = () => {
 
   const onChangeInput = (e, id) => {
     const value = parseInt(e.target.value);
-    console.log(value)
+    console.log(value);
     if (value <= 0) {
       // eslint-disable-next-line no-restricted-globals
       const isConfirm = confirm("Xóa sản phẩm trong giỏ hàng");
-      return isConfirm ? dispatch(deleteCart(id)) :(value=1);
+      return isConfirm ? dispatch(deleteCart(id)) : (value = 1);
     }
     dispatch(updateCart({ _id: id, qty: value }));
   };
@@ -38,12 +39,10 @@ const Cart = () => {
     e.preventDefault();
     // eslint-disable-next-line no-restricted-globals
     const isConfirm = confirm("Xóa sản phẩm trong giỏ hàng");
-    return isConfirm
-      ? dispatch(deleteCart(id))
-      : false;
+    return isConfirm ? dispatch(deleteCart(id)) : false;
   };
 
-  function onClickOrder(e,id) {
+  function onClickOrder(e, id) {
     e.preventDefault();
 
     const items = cart?.map((item) => ({ prd_id: item._id, qty: item.qty }));
@@ -52,7 +51,7 @@ const Cart = () => {
       ...inputs,
     }).then(({ data }) => {
       if (data.status === "success") {
-        dispatch(removeCart())
+        dispatch(removeCart());
         navigate("/success");
       }
     });
@@ -75,9 +74,16 @@ const Cart = () => {
           <form method="post">
             {cart?.map((item, index) => {
               return (
-                <div className="cart-item row">
+                <div className="cart-item row" key={index}>
                   <div className="cart-thumb col-lg-7 col-md-7 col-sm-12">
                     <img src={getImageProduct(item?.image)} />
+                    <input
+                      type="checkbox"
+                      name="selected"
+                      id="selected"
+                      checked={item.isCheck}
+                      onChange={() => dispatch(selectItemCart(item._id))}
+                    ></input>
                     <h4>{item?.name}</h4>
                   </div>
                   <div className="cart-quantity col-lg-2 col-md-2 col-sm-12">
@@ -120,10 +126,13 @@ const Cart = () => {
               <div className="cart-price col-lg-3 col-md-3 col-sm-12">
                 <b>
                   {formatPrice.format(
-                    cart.reduce(
-                      (total, item) => total + item.price * item.qty,
-                      0
-                    )
+                    cart.reduce((total, item) => {
+                      if(item.isCheck){
+                       return total + item.price * item.qty;
+                      }
+                      return total;
+                    }
+                    ,0)
                   )}
                 </b>
               </div>
